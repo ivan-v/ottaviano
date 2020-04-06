@@ -29,10 +29,12 @@ count = 0
 current_sequence = 0
 temp_frequencies = {}
 epochs = {}
+count_per_epoch = {}
 
 for i, line in enumerate(input_file):
 
     current_sequence = list(map(int, line.split()[0:n]))
+    frequency = int(line.split()[n+1])
     
     year = int(line.split()[n])
     floored = math.floor(year/50)*50
@@ -40,14 +42,21 @@ for i, line in enumerate(input_file):
     
     if epoch not in epochs:
         epochs[epoch] = {}
+        count_per_epoch[epoch] = 0
+
     if str(tuple(current_sequence)) not in epochs[epoch]:
-        epochs[epoch][str(tuple(current_sequence))] = int(line.split()[n+1])
+        epochs[epoch][str(tuple(current_sequence))] = frequency
+        count_per_epoch[epoch] += frequency
     else:
-        epochs[epoch][str(tuple(current_sequence))] += int(line.split()[n+1])
+        epochs[epoch][str(tuple(current_sequence))] += frequency
+        count_per_epoch[epoch] += frequency 
 
     count += 1
     if debug and count % 10000 == 0:
         print(count, " lines parsed so far.")
+
+for epoch in epochs:
+    epochs[epoch] = (count_per_epoch[epoch], epochs[epoch])
 
 if debug:
     print("Writing to", str("unique-"+str(n)+"-grams_epochs.json..."))
