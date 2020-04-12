@@ -16,10 +16,25 @@ debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
 
 
 # determining what the n-count is from the file name
-if ngrams[18].isdigit():
-    n = int(ngrams[17:19])
+# if ngrams[18].isdigit():
+#     n = int(ngrams[17:19])
+# else:
+#     n = int(ngrams[17])
+
+#this is another way of determining n-count from input file name
+#which allows for files to be in a different directory/be called
+#in different ways (ie ./imslp-interval-12gram-20110401.csv instead
+# of .\imslp-interval-12gram-20110401.csv)
+i = 0
+tempStr = ngrams[i:i+5]
+while tempStr != "imslp":
+    i = i + 1
+    tempStr = ngrams[i:i+5]
+
+if ngrams[16 + i].isdigit():
+    n = int(ngrams[15+i:17+i])
 else:
-    n = int(ngrams[17])
+    n = int(ngrams[15+i])
 
 input_file = open(ngrams)
 output_file = open("unique-" + str(n) + "-grams.json", 'w')
