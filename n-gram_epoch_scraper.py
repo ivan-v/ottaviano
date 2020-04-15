@@ -20,6 +20,9 @@ debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
 # determining what the n-count is from the file name
 n = int("".join("".join([str(i) for i in list(ngrams) if i.isdigit()]).split("20110401")))
 
+if not os.path.isdir("unique_ngrams"):
+    os.makedirs("unique_ngrams")
+
 input_file = open(ngrams)
 destination = os.path.join("unique_ngrams", "unique-"+str(n)+"-grams_epochs.json")
 output_file = open(destination, 'w')
