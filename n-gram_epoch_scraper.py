@@ -1,5 +1,6 @@
 import json
 import math
+import os
 import sys
 
 
@@ -17,13 +18,11 @@ ngrams = sys.argv[1]
 debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
 
 # determining what the n-count is from the file name
-if ngrams[18].isdigit():
-    n = int(ngrams[17:19])
-else:
-    n = int(ngrams[17])
+n = int("".join("".join([str(i) for i in list(ngrams) if i.isdigit()]).split("20110401")))
 
 input_file = open(ngrams)
-output_file = open("unique-" + str(n) + "-grams_epochs.json", 'w')
+destination = os.path.join("unique_ngrams", "unique-"+str(n)+"-grams_epochs.json")
+output_file = open(destination, 'w')
 
 count = 0
 current_sequence = 0
