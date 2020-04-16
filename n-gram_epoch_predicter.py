@@ -3,10 +3,17 @@ import os
 import sys
 
 from ast import literal_eval # to convert a string of a tuple to tuple proper
+from glob import glob # to process/run on many files
 
-# To run this, call n-gram_predicter.py unique-12-grams.json (or similar),
-# as output from n-gram_scraper.py. It will create a 
-# dictionary of a list of a sequence, which is of n-1 length, 
+# To run this, simply call n-gram_epoch_predicter.py *.json for where your 
+# unique_n-grams are (which are generated from n-gram_epoch_scraper.py).
+# For example, on Windows: py n-gram_scraper.py .\unique_ngrams_epochs\*.json)
+# to process all of them. 
+# Alternatively, you can process an individual unique-n-grams_epochs.json file as well.
+# It will write to n-grams_epochs_hmm.json, (or whatever n-values we are looking at),
+# in a directory/folder of "epochs_hmm"
+
+# It will create a dictionary of a list of a sequence, which is of n-1 length, 
 # and give it a list of dictionaries which is all that the next pitch could be,
 # and what is its probability. 
 
@@ -25,60 +32,77 @@ from ast import literal_eval # to convert a string of a tuple to tuple proper
 # and the finishing message. It goes after the input-file name:
 # n-gram_scraper.py unique-12-grams.json -debug
 
-ngrams = sys.argv[1]
-debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
+def ls(fname):
+    # Returns either [fname] or a list of the contents of fname if fname is a
+    # directory.  On Windows only, expands globs (e.g., *.hson) before listing
+    # fname.
+    fnames = glob(fname) if os.name == 'nt' else [fname]
+    lists = [os.listdir(f) if os.path.isdir(f) else [f] for f in fnames]
+    return [f for fs in lists for f in fs]
 
-# determining what the n-count is from the file name
-n = int("".join([str(i) for i in list(ngrams) if i.isdigit()]))
+def main():
+    fnames = [f for fs in map(ls, sys.argv[1:]) for f in fs]
+    for fname in fnames:
+        print("Processing {}...".format(fname), file=sys.stderr)
+        process_unique_ngrams(fname)
 
-if not os.path.isdir("epoch_hmm"):
-    os.makedirs("epoch_hmm")
+def process_unique_ngrams(fname):
+    ngrams = fname
+    debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
 
+    # determining what the n-count is from the file name
+    n = int("".join([str(i) for i in list(ngrams) if i.isdigit()]))
 
-destination = os.path.join("epoch_hmm", str(n) + '-grams-' + 'epoch_hmm.json')
-output_file = open(destination, 'w')
-input_file = open(ngrams)
+    if not os.path.isdir("epochs_hmm"):
+        os.makedirs("epochs_hmm")
 
-data = json.load(input_file)
-output = {}
-sublocal_counts = 0
-count = 0
+    destination = os.path.join("epochs_hmm", str(n) + '-grams-' + 'epochs_hmm.json')
+    output_file = open(destination, 'w')
+    input_file = open(ngrams)
 
-for epoch in data:
-    current = 0
-    previous = 0
-    local_counts = 0
-    temp_probabilities = {}
-    markov = {}
-    for entry in data[epoch][1]:
+    data = json.load(input_file)
+    output = {}
+    sublocal_counts = 0
+    count = 0
 
-        sequence = literal_eval(entry)
-        current = sequence[0:n-1]
+    for epoch in data:
+        current = 0
+        previous = 0
+        local_counts = 0
+        temp_probabilities = {}
+        markov = {}
+        for entry in data[epoch][1]:
 
-        if count == 0:
-            previous = current
+            sequence = literal_eval(entry)
+            current = sequence[0:n-1]
 
-        if current == previous:
-            temp_probabilities[sequence[n-1]] = data[epoch][1][entry]
-        else:
-            for probability in temp_probabilities:
-                temp_probabilities[probability] = temp_probabilities[probability]/local_counts
-            markov[str(previous)] = temp_probabilities
-            temp_probabilities = {}
-            previous = current
-            temp_probabilities[sequence[n-1]] = data[epoch][1][entry]
-            local_counts = 0
-        local_counts += data[epoch][1][entry]
-        count += 1
-    output[epoch] = markov
-    
+            if count == 0:
+                previous = current
+
+            if current == previous:
+                temp_probabilities[sequence[n-1]] = data[epoch][1][entry]
+            else:
+                for probability in temp_probabilities:
+                    temp_probabilities[probability] = temp_probabilities[probability]/local_counts
+                markov[str(previous)] = temp_probabilities
+                temp_probabilities = {}
+                previous = current
+                temp_probabilities[sequence[n-1]] = data[epoch][1][entry]
+                local_counts = 0
+            local_counts += data[epoch][1][entry]
+            count += 1
+        output[epoch] = markov
+        
+        if debug:
+            print("Epoch " + epoch + " has been completed.")
+
     if debug:
-        print("Epoch " + epoch + " has been completed.")
+        print("Writing to ", (str(str(n) + '-grams-' + 'epochs_hmm.json' + "...")))
 
-if debug:
-    print("Writing to ", (str(str(n) + '-grams-' + 'epoch_hmm.json' + "...")))
+    json.dump(output, output_file, indent=2)
 
-json.dump(output, output_file, indent=2)
+    if debug:    
+        print(count, "lines parsed,", len(data), "epochs for", str(n), "-grams saved.")
 
-if debug:    
-    print(count, "lines parsed,", len(data), "epochs for", str(n), "-grams saved.")
+if __name__ == '__main__':
+    main()

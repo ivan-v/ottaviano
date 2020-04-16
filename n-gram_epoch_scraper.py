@@ -3,67 +3,88 @@ import math
 import os
 import sys
 
+from glob import glob # to process/run on many files
 
-# To run this, simply call n-gram_scraper.py .\imslp-interval-12gram-20110401.csv
-# (or any other interval n-gram file). It will write to unique-4-grams_epochs.json, 
-# (or whatever n-value we are looking at),
-# making a dictionary of epochs with counts of each sequence in that epoch
-# from all the relevant years found in the csv.
+# To run this, simply call n-gram_scraper.py *.csv for where your n-grams are
+# (for example, on Windows: py n-gram_scraper.py .\ngrams\*.csv) to process all of them
+# Alternatively, you can process an individual melodic csv n-gram file as well, in the format
+# which it appears in http://www.peachnote.com/datasets.html
+# It will write to unique-4-grams_epochs.json, (or whatever n-values we are looking at),
+# in a directory/folder of "unique_ngrams_epochs" with counts of 
+# each sequence in that epoch from all the relevant years found in the csv.
 
 # There's an optional flag of -debug prints every 10000 input lines read,
 # and the finishing message. It goes after the input-file name:
 # n-gram_scraper.py .\imslp-interval-12gram-20110401.csv -debug
 
-ngrams = sys.argv[1]
-debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
+def ls(fname):
+    # Returns either [fname] or a list of the contents of fname if fname is a
+    # directory.  On Windows only, expands globs (e.g., *.csv) before listing
+    # fname.
+    fnames = glob(fname) if os.name == 'nt' else [fname]
+    lists = [os.listdir(f) if os.path.isdir(f) else [f] for f in fnames]
+    return [f for fs in lists for f in fs]
 
-# determining what the n-count is from the file name
-n = int("".join("".join([str(i) for i in list(ngrams) if i.isdigit()]).split("20110401")))
+def main():
+    fnames = [f for fs in map(ls, sys.argv[1:]) for f in fs]
+    for fname in fnames:
+        print("Processing {}...".format(fname), file=sys.stderr)
+        process_csv(fname)
 
-if not os.path.isdir("unique_ngrams"):
-    os.makedirs("unique_ngrams")
+def process_csv(fname):
+    ngrams = fname
+    debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
 
-input_file = open(ngrams)
-destination = os.path.join("unique_ngrams", "unique-"+str(n)+"-grams_epochs.json")
-output_file = open(destination, 'w')
+    # determining what the n-count is from the file name
+    n = int("".join("".join([str(i) for i in list(ngrams) if i.isdigit()]).split("20110401")))
 
-count = 0
-current_sequence = 0
-temp_frequencies = {}
-epochs = {}
-count_per_epoch = {}
+    if not os.path.isdir("unique_ngrams_epochs"):
+        os.makedirs("unique_ngrams_epochs")
 
-for i, line in enumerate(input_file):
+    input_file = open(ngrams)
+    destination = os.path.join("unique_ngrams_epochs", "unique-"+str(n)+"-grams_epochs.json")
+    output_file = open(destination, 'w')
 
-    current_sequence = list(map(int, line.split()[0:n]))
-    frequency = int(line.split()[n+1])
-    
-    year = int(line.split()[n])
-    floored = math.floor(year/50)*50
-    epoch = str(floored)+"-"+str(floored+49)
-    
-    if epoch not in epochs:
-        epochs[epoch] = {}
-        count_per_epoch[epoch] = 0
+    count = 0
+    current_sequence = 0
+    temp_frequencies = {}
+    epochs = {}
+    count_per_epoch = {}
 
-    if str(tuple(current_sequence)) not in epochs[epoch]:
-        epochs[epoch][str(tuple(current_sequence))] = frequency
-        count_per_epoch[epoch] += frequency
-    else:
-        epochs[epoch][str(tuple(current_sequence))] += frequency
-        count_per_epoch[epoch] += frequency 
+    for i, line in enumerate(input_file):
 
-    count += 1
-    if debug and count % 10000 == 0:
-        print(count, " lines parsed so far.")
+        current_sequence = list(map(int, line.split()[0:n]))
+        frequency = int(line.split()[n+1])
+        
+        year = int(line.split()[n])
+        floored = math.floor(year/50)*50
+        epoch = str(floored)+"-"+str(floored+49)
+        
+        if epoch not in epochs:
+            epochs[epoch] = {}
+            count_per_epoch[epoch] = 0
 
-for epoch in epochs:
-    epochs[epoch] = (count_per_epoch[epoch], epochs[epoch])
+        if str(tuple(current_sequence)) not in epochs[epoch]:
+            epochs[epoch][str(tuple(current_sequence))] = frequency
+            count_per_epoch[epoch] += frequency
+        else:
+            epochs[epoch][str(tuple(current_sequence))] += frequency
+            count_per_epoch[epoch] += frequency 
 
-if debug:
-    print("Writing to", str("unique-"+str(n)+"-grams_epochs.json..."))
+        count += 1
+        if debug and count % 10000 == 0:
+            print(count, " lines parsed so far.")
 
-json.dump(epochs, output_file, indent=2)
+    for epoch in epochs:
+        epochs[epoch] = (count_per_epoch[epoch], epochs[epoch])
 
-if debug:
-    print(count, " lines parsed, ", len(epochs), " distinct eras collected.")
+    if debug:
+        print("Writing to", str("unique-"+str(n)+"-grams_epochs.json..."))
+
+    json.dump(epochs, output_file, indent=2)
+
+    if debug:
+        print(count, " lines parsed, ", len(epochs), " distinct eras collected.")
+
+if __name__ == '__main__':
+    main()
