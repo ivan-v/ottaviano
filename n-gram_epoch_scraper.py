@@ -5,8 +5,11 @@ import sys
 
 from glob import glob # to process/run on many files
 
-# To run this, simply call n-gram_scraper.py *.csv for where your n-grams are
-# (for example, on Windows: py n-gram_scraper.py .\ngrams\*.csv) to process all of them
+# To run this, simply call n-gram_scraper.py *.csv x for where your n-grams are
+# (for example, on Windows: py n-gram_scraper.py .\ngrams\*.csv 50) 
+# to process all of them, and where x in the command-line input is the length of the epochs
+# in years (i.e, 50 -> breaking up into half-centuries)
+
 # Alternatively, you can process an individual melodic csv n-gram file as well, in the format
 # which it appears in http://www.peachnote.com/datasets.html
 # It will write to unique-4-grams_epochs.json, (or whatever n-values we are looking at),
@@ -33,7 +36,8 @@ def main():
 
 def process_csv(fname):
     ngrams = fname
-    debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
+    epoch_length = int(sys.argv[2])
+    debug = len(sys.argv) > 3 and sys.argv[3] == "-debug"
 
     # determining what the n-count is from the file name
     n = int("".join("".join([str(i) for i in list(ngrams) if i.isdigit()]).split("20110401")))
@@ -42,7 +46,8 @@ def process_csv(fname):
         os.makedirs("unique_ngrams_epochs")
 
     input_file = open(ngrams)
-    destination = os.path.join("unique_ngrams_epochs", "unique-"+str(n)+"-grams_epochs.json")
+    file_name = "unique-"+str(n)+"-grams_epochs_"+str(epoch_length)+".json"
+    destination = os.path.join("unique_ngrams_epochs", file_name)
     output_file = open(destination, 'w')
 
     count = 0
@@ -57,8 +62,8 @@ def process_csv(fname):
         frequency = int(line.split()[n+1])
         
         year = int(line.split()[n])
-        floored = math.floor(year/50)*50
-        epoch = str(floored)+"-"+str(floored+49)
+        floored = math.floor(year/epoch_length)*epoch_length
+        epoch = str(floored)+"-"+str(floored+epoch_length-1)
         
         if epoch not in epochs:
             epochs[epoch] = {}
@@ -79,7 +84,7 @@ def process_csv(fname):
         epochs[epoch] = (count_per_epoch[epoch], epochs[epoch])
 
     if debug:
-        print("Writing to", str("unique-"+str(n)+"-grams_epochs.json..."))
+        print("Writing to", file_name)
 
     json.dump(epochs, output_file, indent=2)
 
