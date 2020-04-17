@@ -8,7 +8,7 @@ from glob import glob # to process/run on many files
 # To run this, simply call n-gram_scraper.py *.csv x for where your n-grams are
 # (for example, on Windows: py n-gram_scraper.py .\ngrams\*.csv 50) 
 # to process all of them, and where x in the command-line input is the length of the epochs
-# in years (i.e, 50 -> breaking up into half-centuries)
+# in years (i.e, 50 -> categorizing into half-centuries)
 
 # Alternatively, you can process an individual melodic csv n-gram file as well, in the format
 # which it appears in http://www.peachnote.com/datasets.html
@@ -45,9 +45,12 @@ def process_csv(fname):
     if not os.path.isdir("unique_ngrams_epochs"):
         os.makedirs("unique_ngrams_epochs")
 
+    if not os.path.isdir(os.path.join("unique_ngrams_epochs", str(epoch_length))):
+        os.makedirs(os.path.join("unique_ngrams_epochs", str(epoch_length)))
+
     input_file = open(ngrams)
     file_name = "unique-"+str(n)+"-grams_epochs_"+str(epoch_length)+".json"
-    destination = os.path.join("unique_ngrams_epochs", file_name)
+    destination = os.path.join("unique_ngrams_epochs", str(epoch_length), file_name)
     output_file = open(destination, 'w')
 
     count = 0
@@ -84,7 +87,7 @@ def process_csv(fname):
         epochs[epoch] = (count_per_epoch[epoch], epochs[epoch])
 
     if debug:
-        print("Writing to", file_name)
+        print("Writing to", os.path.join(str(epoch_length), file_name))
 
     json.dump(epochs, output_file, indent=2)
 

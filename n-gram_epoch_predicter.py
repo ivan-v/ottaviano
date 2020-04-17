@@ -13,6 +13,9 @@ from glob import glob # to process/run on many files
 # It will write to n-grams_epochs_hmm.json, (or whatever n-values we are looking at),
 # in a directory/folder of "epochs_hmm"
 
+# It expects unique_ngrams_epochs\epoch_length\*.json (where epoch_length is a number,)
+# like 100 for every century, etc.)
+
 # It will create a dictionary of a list of a sequence, which is of n-1 length, 
 # and give it a list of dictionaries which is all that the next pitch could be,
 # and what is its probability. 
@@ -51,12 +54,19 @@ def process_unique_ngrams(fname):
     debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
 
     # determining what the n-count is from the file name
-    n = int("".join([str(i) for i in list(ngrams) if i.isdigit()]))
+    n = int("".join([str(i) for i in list(ngrams[len(ngrams)-29:len(ngrams)-10]) if i.isdigit()]))
+    # determining time period/epoch lengths
+    epoch_length = "".join([str(i) for i in list(ngrams[len(ngrams)-11:]) if i.isdigit()])
 
     if not os.path.isdir("epochs_hmm"):
         os.makedirs("epochs_hmm")
 
-    destination = os.path.join("epochs_hmm", str(n) + '-grams-' + 'epochs_hmm.json')
+    if not os.path.isdir(os.path.join("epochs_hmm", epoch_length)):
+        os.makedirs(os.path.join("epochs_hmm", epoch_length))
+
+
+    output_name = str(n) + '-grams-' + 'epochs_hmm_' + epoch_length + '.json'
+    destination = os.path.join("epochs_hmm", epoch_length, output_name)
     output_file = open(destination, 'w')
     input_file = open(ngrams)
 
@@ -97,7 +107,7 @@ def process_unique_ngrams(fname):
             print("Epoch " + epoch + " has been completed.")
 
     if debug:
-        print("Writing to ", (str(str(n) + '-grams-' + 'epochs_hmm.json' + "...")))
+        print("Writing to", output_name)
 
     json.dump(output, output_file, indent=2)
 
