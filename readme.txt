@@ -53,3 +53,4 @@ Pretty histograms for top_occurances and epoch_estimate (pandas?)
 
 Maybe rename some of the longer file names like n-gram_epoch_predicter to just epoch_predicter (everything is n-grams here anyways)
 
+Once the overhead file is finished, make a nicer markdown version of this readme
