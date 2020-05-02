@@ -12,7 +12,7 @@ The -debug flag is available for every following program call as
 an optional final parameter, and it will print progress of the 
 running program.
 
-When ready, call n-gram_scraper.py *.csv x
+When ready, call n-gram_epoch_scraper.py *.csv x
 from where the n-gram csv files are,
 and with x being the epoch width (a natural number).
 
