@@ -3,12 +3,15 @@ import os
 import sys
 import operator
 
+import matplotlib.pyplot as plt
 '''
 This is a simple epoch estimator! It takes a melody and a number of years to span from
 standard input and calculates the most likely era (under the given span) that the given
 melody came from. This is done by simply calculating the likelihood that the melody occurs
 within each epoch in the dataset, storing the results, and then picking the epoch with
 the highest probability.
+
+For the graph, it requires matplotlib to be installed through pip or homebrew.
 
 This program expects a file matching the input request to already exist: if you query with
 a 3-gram melody and a 50 year span, there must be a file unique-3grams_epochs_50.json 
@@ -91,3 +94,22 @@ for epoch in data:
 epoch_estimate = max(epoch_probabilities.items(), key=operator.itemgetter(1))[0]
 
 print("This melody is most likely from the era:", epoch_estimate)
+print(epoch_probabilities)
+
+# Sorting the epochs chronologically
+graph_input = {}
+for key in sorted(epoch_probabilities.keys()):
+    graph_input[key] = epoch_probabilities[key]
+
+# making the graph
+names = list(graph_input.keys())
+values = list(graph_input.values())
+
+fig, axs = plt.subplots(1, figsize=(18, 3), sharey=True)
+# axs[0].bar(names, values)
+# axs[1].scatter(names, values)
+sequence = tuple(map(int, melody_input))
+print(sequence)
+fig.suptitle("Frequency of " + str(sequence))
+axs.bar(names, values)
+plt.show()

@@ -64,7 +64,7 @@ year_range = epoch
 start_line = '  "{}": {{\n'.format(year_range)
 is_not_start = lambda line: line != start_line
 is_not_stop = lambda line: not line.startswith('  }')
-for i in range(2, 8):
+for i in range(2, 14):
     t = time.time()
     file_name = str(i) + "-grams-epochs_hmm_" + epoch_size + ".json"
     with open(os.path.join(epochs_hmm_folder, file_name)) as istream:
