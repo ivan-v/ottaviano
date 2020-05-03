@@ -48,17 +48,38 @@ for i in range(0,len(melody_input)):
         melody = melody + ", "
 melody = melody + ")"
 
+#get average number of melodies contained in epochs
+#also get min and max melody counts for debugging
+melodies_sum = 0
+epoch_count = 0
+min_melodies = 2000000
+max_melodies = 0
+for epoch in data:
+    melodies_sum += data[epoch][0]
+    epoch_count += 1
+    if(data[epoch][0] < min_melodies):
+        min_melodies = data[epoch][0]
+    if(data[epoch][0] > max_melodies):
+        max_melodies = data[epoch][0]
+average_melody_count = melodies_sum/epoch_count
+if debug:
+    print("Minimum melody count:", min_melodies)
+    print("Maximum melody count:", max_melodies)
+    print("Average melody count:", average_melody_count)
+    
+
 #iterate through data file and calculate probability of melody in each epoch
 epoch_probabilities = {}
 for epoch in data:
     total_melodies = data[epoch][0]
     temp_epoch_data = data[epoch][1]
+    confidence = min(1/(average_melody_count/total_melodies),1.000)
     try:
         temp_melody_freq = temp_epoch_data[melody]
         temp_prob = temp_melody_freq/total_melodies
-        epoch_probabilities[epoch] = temp_prob
+        epoch_probabilities[epoch] = temp_prob * confidence
         if debug:
-            print(epoch, ": " , temp_prob)
+            print(epoch, ": " , temp_prob, " confidence:",round(confidence,3))
         pass
     except KeyError:
         epoch_probabilities[epoch] = 0

@@ -3,8 +3,19 @@ import numpy
 import os
 import sys
 import time
+from mingus.midi import fluidsynth   
+fluidsynth.init('/Users/paulodenwaldt/Desktop/NLP/finalproject/data/FluidR3_GM.sf2')
 
 from itertools import dropwhile, takewhile
+
+'''
+The audio playback of this program depends on the mingus and fluidsynth libraries.
+Both can be installed with pip or homebrew. (pip/brew install mingus, pip/brew install fluidsynth).
+You will also need the FluidR3_GM.sf2 file - this contains the waveforms necessary
+for synthesis. You can find it here: https://member.keymusician.com/Member/FluidR3_GM/index.html
+Once you have these installed, just change the path in line 7 to wherever you installed 
+the sf2 file to. 
+'''
 
 # To run this, you will need numpy. An example call is this:
 # py -3.7 .\melody_generator_epoch.py 1750-1799 -debug
@@ -53,7 +64,7 @@ year_range = epoch
 start_line = '  "{}": {{\n'.format(year_range)
 is_not_start = lambda line: line != start_line
 is_not_stop = lambda line: not line.startswith('  }')
-for i in range(2, 13):
+for i in range(2, 8):
     t = time.time()
     file_name = str(i) + "-grams-epochs_hmm_" + epoch_size + ".json"
     with open(os.path.join(epochs_hmm_folder, file_name)) as istream:
@@ -73,3 +84,11 @@ for i in range(2, 13):
             print(melody)
             print("Time taken to get next interval: ", time.time() - t)
 print(tuple(melody))
+note = 60
+fluidsynth.play_Note(note,0,100)
+time.sleep(0.5) 
+for i in range(len(melody)):
+    note += melody[i]
+    fluidsynth.play_Note(note,0,100)
+    time.sleep(0.5) 
+time.sleep(2.0) 
