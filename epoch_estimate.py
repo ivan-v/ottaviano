@@ -122,13 +122,13 @@ fig, axs = plt.subplots(1, figsize=(15, 6), sharey=True)
 plt.setp(axs.get_xticklabels(), rotation=30, horizontalalignment='right')
 sequence = tuple(map(int, melody_input))
 #plt.suptitle("Frequency of " + str(sequence))
-plt.title("Likelihood of " + str(sequence) + " over time.   Most likely: " + str(epoch_estimate))
+plt.title("Likelihood of " + str(sequence) + " over time.     Most likely: " + str(epoch_estimate))
 clist = [(0, "white"), (1, "black")]
 rvb = mcolors.LinearSegmentedColormap.from_list("", clist)
 scaled_values = values / max_prob
 sm = plt.cm.ScalarMappable(cmap=plt.cm.binary, norm=plt.Normalize(vmin=0, vmax=1))
 cbar = plt.colorbar(sm)
 cbar.set_label('confidence level', rotation=90,labelpad=1)
-axs.bar(names, values,color=rvb(confidence))
+axs.bar(names, values,color=rvb(confidence),edgecolor="black")
 
 plt.show()
