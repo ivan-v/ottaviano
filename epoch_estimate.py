@@ -4,6 +4,10 @@ import sys
 import operator
 
 import matplotlib.pyplot as plt
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.colors as mcolors
+import numpy as np
 '''
 This is a simple epoch estimator! It takes a melody and a number of years to span from
 standard input and calculates the most likely era (under the given span) that the given
@@ -73,14 +77,21 @@ if debug:
 
 #iterate through data file and calculate probability of melody in each epoch
 epoch_probabilities = {}
+raw_probabilities = {}
+epoch_confidence = {}
+max_prob = 0
 for epoch in data:
     total_melodies = data[epoch][0]
     temp_epoch_data = data[epoch][1]
     confidence = min(1/(average_melody_count/total_melodies),1.000)
+    epoch_confidence[epoch] = confidence
     try:
         temp_melody_freq = temp_epoch_data[melody]
         temp_prob = temp_melody_freq/total_melodies
+        if(temp_prob > max_prob):
+            max_prob = temp_prob
         epoch_probabilities[epoch] = temp_prob * confidence
+        raw_probabilities[epoch] = temp_prob
         if debug:
             print(epoch, ": " , temp_prob, " confidence:",round(confidence,3))
         pass
@@ -94,19 +105,30 @@ for epoch in data:
 epoch_estimate = max(epoch_probabilities.items(), key=operator.itemgetter(1))[0]
 
 print("This melody is most likely from the era:", epoch_estimate)
-print(epoch_probabilities)
 
 # Sorting the epochs chronologically
 graph_input = {}
-for key in sorted(epoch_probabilities.keys()):
-    graph_input[key] = epoch_probabilities[key]
+confidences = {}
+for key in sorted(raw_probabilities.keys()):
+    graph_input[key] = raw_probabilities[key]
+    confidences[key] = epoch_confidence[key]
 
 # making the graph
-names = list(graph_input.keys())
-values = list(graph_input.values())
+names = np.array(list(graph_input.keys()))
+values = np.array(list(graph_input.values()))
+confidence = np.array(list(confidences.values()))
 
-fig, axs = plt.subplots(1, figsize=(18, 3), sharey=True)
+fig, axs = plt.subplots(1, figsize=(15, 6), sharey=True)
+plt.setp(axs.get_xticklabels(), rotation=30, horizontalalignment='right')
 sequence = tuple(map(int, melody_input))
-fig.suptitle("Frequency of " + str(sequence))
-axs.bar(names, values)
+#plt.suptitle("Frequency of " + str(sequence))
+plt.title("Likelihood of " + str(sequence) + " over time.   Most likely: " + str(epoch_estimate))
+clist = [(0, "white"), (1, "black")]
+rvb = mcolors.LinearSegmentedColormap.from_list("", clist)
+scaled_values = values / max_prob
+sm = plt.cm.ScalarMappable(cmap=plt.cm.binary, norm=plt.Normalize(vmin=0, vmax=1))
+cbar = plt.colorbar(sm)
+cbar.set_label('confidence level', rotation=90,labelpad=1)
+axs.bar(names, values,color=rvb(confidence))
+
 plt.show()
