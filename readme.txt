@@ -41,16 +41,7 @@ To see the top z melodic sequences which appear in a given n-gram length (where 
 n-gram_predicter.py unique-12-grams_epochs.json z
 
 
-(further coding) TODO:
+TODO:
 
 A "main" script which does the overhead in one go, as described above^, with proper handling of the -debug optional param
-
-melody_generator_epoch to give a live midi audio output when it finishes of the sequence
-
-More description in output for epoch_estimate (distribution of probability occuring for each epoch)
-
-Pretty histograms for top_occurances and epoch_estimate (pandas?)
-
-Maybe rename some of the longer file names like n-gram_epoch_predicter to just epoch_predicter (everything is n-grams here anyways)
-
-Once the overhead file is finished, make a nicer markdown version of this readme
+A nicer markdown version of this readme
