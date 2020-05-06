@@ -25,13 +25,14 @@ This is the end of the overhead. Now the following become available:
 
 To see in which epochs a given melody appears most often in:
 epoch_estimate.py 
+NOTE: this requires matplotlib and pandas to be installed.
 [enter sequence as integers seperated by spaces, like "1 1 1"]
 [enter epoch-length, like "50"]
 
 
 To generate a melody probabilistically from a given epoch:
-melody_generator_epoch.py 1750-1799 (or any vailable epoch)
-NOTE: this requires numpy to be installed.
+melody_generator_epoch.py 1750-1799 -debug (or any vailable epoch)
+NOTE: this requires numpy, midi, fluidsynth, and FluidR3_GM.sf2 to be installed.
 The more likely that a melody appears in that epoch, the more
 likely it is that it will be generated. Less-common epochs 
 may generate shorted melodies, and this is expected.
