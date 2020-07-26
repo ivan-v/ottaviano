@@ -45,13 +45,16 @@ def ls(fname):
 
 def main():
     fnames = [f for fs in map(ls, sys.argv[1:]) for f in fs]
+    if '-debug' in sys.argv:
+        debug = True
+    else:
+        debug = False
     for fname in fnames:
         print("Processing {}...".format(fname), file=sys.stderr)
-        process_unique_ngrams(fname)
+        process_unique_ngrams(fname, debug)
 
-def process_unique_ngrams(fname):
+def process_unique_ngrams(fname, debug):
     ngrams = fname
-    debug = len(sys.argv) > 2 and sys.argv[2] == "-debug"
 
     # determining what the n-count is from the file name
     n = int("".join([str(i) for i in list(ngrams[len(ngrams)-29:len(ngrams)-10]) if i.isdigit()]))

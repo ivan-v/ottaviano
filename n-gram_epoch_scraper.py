@@ -34,7 +34,7 @@ def main():
         epoch_length = int(sys.argv[-1])
     else:
         epoch_length = int(sys.argv[-2])
-    if 'debug' in sys.argv:
+    if '-debug' in sys.argv:
         debug = True
     else:
         debug = False
