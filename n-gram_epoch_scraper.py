@@ -34,14 +34,17 @@ def main():
         epoch_length = int(sys.argv[-1])
     else:
         epoch_length = int(sys.argv[-2])
+    if 'debug' in sys.argv:
+        debug = True
+    else:
+        debug = False
     for fname in fnames:
         print("Processing {}...".format(fname), file=sys.stderr)
-        process_csv(fname, epoch_length)
+        process_csv(fname, epoch_length, debug)
 
-def process_csv(fname, epoch_length):
+def process_csv(fname, epoch_length, debug):
     ngrams = fname
-    debug = len(sys.argv) > 3 and sys.argv[3] == "-debug"
-
+    
     # determining what the n-count is from the file name
     n = int("".join("".join([str(i) for i in list(ngrams) if i.isdigit()]).split("20110401")))
 
