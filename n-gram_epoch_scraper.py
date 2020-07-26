@@ -30,13 +30,16 @@ def ls(fname):
 
 def main():
     fnames = [f for fs in map(ls, sys.argv[1:]) for f in fs]
+    if sys.argv[-1] != '-debug':
+        epoch_length = int(sys.argv[-1])
+    else:
+        epoch_length = int(sys.argv[-2])
     for fname in fnames:
         print("Processing {}...".format(fname), file=sys.stderr)
-        process_csv(fname)
+        process_csv(fname, epoch_length)
 
-def process_csv(fname):
+def process_csv(fname, epoch_length):
     ngrams = fname
-    epoch_length = int(sys.argv[2])
     debug = len(sys.argv) > 3 and sys.argv[3] == "-debug"
 
     # determining what the n-count is from the file name
