@@ -51,3 +51,12 @@ may generate shorted melodies, and this is expected._
 
 To see the top z melodic sequences which appear in a given n-gram length (where z = 100 for top 100, etc.):
 ```n-gram_predicter.py unique-12-grams_epochs.json z```  
+
+## Research Paper
+
+![alt text](/paper/page-1.png)
+![alt text](/paper/page-2.png)
+![alt text](/paper/page-3.png)
+![alt text](/paper/page-4.png)
+![alt text](/paper/page-5.png)
+![alt text](/paper/page-6.png)
