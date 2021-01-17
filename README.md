@@ -33,17 +33,16 @@ called unique_n-grams\\x).
 This is the end of the overhead. Now the following become available:
 
 ### As an tool for analysis
-To see in which epochs a given melody appears most often in:
-    ```epoch_estimate.py [enter sequence as integers seperated by spaces, like "1 1 1"]
-    [enter epoch-length, like "50"]```
+To see in which epochs a given melody appears most often in:  
+    ```epoch_estimate.py [enter sequence as integers seperated by spaces, like "1 1 1"] [enter epoch-length, like "50"]``` 
 
 _NOTE: this requires matplotlib and pandas to be installed._
 
 
 To generate a melody probabilistically from a given epoch:
 
-    ```melody_generator_epoch.py 1750-1799 -debug``` 
-(or any vailable epoch)
+    melody_generator_epoch.py 1750-1799 -debug
+(or any vailable epoch)  
 _NOTE: this requires numpy, midi, fluidsynth, and FluidR3_GM.sf2 to be installed.
 The more likely that a melody appears in that epoch, the more
 likely it is that it will be generated. Less-common epochs 
